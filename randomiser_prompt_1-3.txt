@@ -1,4 +1,7 @@
 // v1.3 with random system and console option
+// v1.2 with system and handheld sub systems to select or be chosen at random.
+// v1.1 nicer interface colours
+// v1.0 base app
 
 Prompt 1.3:
 
