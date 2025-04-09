@@ -6,13 +6,13 @@ i want to build an app to help me choose a genre of video game to play.
 
 The app should be web based and the UI should be responsive so it works on all devices and the user experience is good and consistent on each device.
 
-App name: RetroRandomiser
+App name: RetroRandomiser - The cure for gamer's block.
 
 Title screen.
 
 Heading: Welcome to the RetroRandomiser!
 
-Paragraph text: Can't think what to play? You've come to the right place, choose your system and we'll choose a genre of game for you to play! 
+Paragraph text: Can't decide what to play or what to play on? It's your lucky day, give me a system or choose one at random and i'll find a genre of game for you to play. 
 
 CTA button: Let's go! (when clicked the user proceeds to the next screen, system selection.
 
@@ -20,11 +20,11 @@ CTA button: Let's go! (when clicked the user proceeds to the next screen, system
 
 System selection screen.
 
-Heading: Choose a system to play on.
+Heading: Choose a system to play on
 
-Paragraph text: Tap a button below for the system you want to play. 
+Paragraph text: Tap a button below for the system you want to play, or select the randomiser to choose for you.
 
-Present the user with a button for each system in the systems list.
+Present the user with a button for each system in the systems list and display a randomiser option to choose a system from the hsystems list at random with an OK button to accept.
 
 Systems list:
 Arcade/MVS
@@ -59,7 +59,6 @@ If the user chooses 'Handheld', display buttons for the user to choose a handhel
 
 Also display a randomiser option to choose a handheld from the handheld list at random with an OK button to accept.
 
-
 Handheld list:
 Gameboy DMG
 Gameboy Color
@@ -93,7 +92,6 @@ Present the user with a button with the title: 'Randomise', when clicked the app
 The randomiser UI element should animate whilst the app chooses a genre from the genre list at random. 
 
 The randomiser should take 10 seconds to choose a genre and The randomiser UI element animation should display fun messages to the user whilst it is working. In addition, there should be a spinning wheel or tomobola animation whilst the randomiser is working. 
-
 
 Genre list:
 Platform
