@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RetroRandomiser - The cure for gamer's block</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+        
+        .randomiser-animation {
+            transition: all 0.3s ease;
+        }
+        
+        .screen {
+            display: none;
+        }
+        
+        .screen.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .game-button {
+            transition: all 0.2s ease;
+        }
+        
+        .game-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .random-message {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .random-message.active {
+            opacity: 1;
+        }
+        
+        .slot-machine {
+            perspective: 1000px;
+            height: 60px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .slot {
+            transform-style: preserve-3d;
+            animation: slotSpin 0.1s infinite;
+        }
+        
+        @keyframes slotSpin {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-100%); }
+        }
+        
+        .slot-item {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen font-sans">
+    <div class="container mx-auto px-4 py-8 max-w-3xl">
+        <!-- Title Screen -->
+        <div id="title-screen" class="screen active text-center">
+            <div class="mb-8">
+                <h1 class="text-5xl md:text-6xl font-bold mb-4 text-yellow-400">RetroRandomiser</h1>
+                <p class="text-xl text-yellow-300 mb-2">The cure for gamer's block</p>
+            </div>
+            
+            <div class="bg-gray-800 rounded-lg p-6 mb-8 shadow-lg">
+                <h2 class="text-3xl font-bold mb-4 text-yellow-400">Welcome to the RetroRandomiser!</h2>
+                <p class="text-lg mb-6">
+                    Can't decide what to play or what to play on? It's your lucky day, 
+                    give me a system or choose one at random and I'll find a genre of game for you to play.
+                </p>
+                
+                <button id="start-btn" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-3 px-8 rounded-full text-xl transition-all duration-300 transform hover:scale-105">
+                    Let's go! <i class="fas fa-gamepad ml-2"></i>
+                </button>
+            </div>
+            
+            <div class="text-gray-400 text-sm mt-8">
+                <p>Made with <i class="fas fa-heart text-red-500"></i> for retro gamers</p>
+            </div>
+        </div>
+        
+        <!-- System Selection Screen -->
+        <div id="system-screen" class="screen text-center">
+            <div class="mb-8">
+                <h1 class="text-5xl font-bold mb-4 text-yellow-400">RetroRandomiser</h1>
+                <p class="text-xl text-yellow-300 mb-2">The cure for gamer's block</p>
+            </div>
+            
+            <div class="bg-gray-800 rounded-lg p-6 mb-8 shadow-lg">
+                <h2 class="text-3xl font-bold mb-4 text-yellow-400">Choose a system to play on</h2>
+                <p class="text-lg mb-6">
+                    Tap a button below for the system you want to play, or select the randomiser to choose for you.
+                </p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                    <button data-system="arcade" class="game-button bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-4 rounded-lg text-lg">
+                        <i class="fas fa-joystick mr-2"></i> Arcade/MVS
+                    </button>
+                    <button data-system="console" class="game-button bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded-lg text-lg">
+                        <i class="fas fa-tv mr-2"></i> Console
+                    </button>
+                    <button data-system="handheld" class="game-button bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-4 rounded-lg text-lg">
+                        <i class="fas fa-mobile-screen mr-2"></i> Handheld
+                    </button>
+                </div>
+                
+                <div class="randomiser-option bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-full inline-block cursor-pointer mb-4">
+                    <i class="fas fa-random mr-2"></i> Random System
+                </div>
+            </div>
+            
+            <button id="back-to-title" class="text-gray-400 hover:text-white mt-4">
+                <i class="fas fa-arrow-left mr-2"></i> Back
+            </button>
+        </div>
+        
+        <!-- Console Selection Screen -->
+        <div id="console-screen" class="screen text-center">
+            <div class="mb-8">
+                <h1 class="text-5xl font-bold mb-4 text-yellow-400">RetroRandomiser</h1>
+                <p class="text-xl text-yellow-300 mb-2">The cure for gamer's block</p>
+            </div>
+            
+            <div class="bg-gray-800 rounded-lg p-6 mb-8 shadow-lg">
+                <h2 class="text-3xl font-bold mb-4 text-yellow-400">Choose a console</h2>
+                
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+                    <button data-console="NES" class="game-button bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        NES
+                    </button>
+                    <button data-console="Master System" class="game-button bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        Master System
+                    </button>
+                    <button data-console="PC Engine" class="game-button bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        PC Engine
+                    </button>
+                    <button data-console="Super Famicom" class="game-button bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        Super Famicom
+                    </button>
+                    <button data-console="MegaDrive" class="game-button bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        MegaDrive
+                    </button>
+                    <button data-console="Mega CD" class="game-button bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        Mega CD
+                    </button>
+                    <button data-console="32X" class="game-button bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        32X
+                    </button>
+                    <button data-console="N64" class="game-button bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        N64
+                    </button>
+                    <button data-console="Saturn" class="game-button bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        Saturn
+                    </button>
+                    <button data-console="Gamecube" class="game-button bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        Gamecube
+                    </button>
+                    <button data-console="Dreamcast" class="game-button bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        Dreamcast
+                    </button>
+                    <button data-console="PS1" class="game-button bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        PS1
+                    </button>
+                    <button data-console="PS3" class="game-button bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        PS3
+                    </button>
+                    <button data-console="Switch" class="game-button bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        Switch
+                    </button>
+                </div>
+                
+                <div class="randomiser-option bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-full inline-block cursor-pointer mb-4">
+                    <i class="fas fa-random mr-2"></i> Random Console
+                </div>
+            </div>
+            
+            <button id="back-to-system" class="text-gray-400 hover:text-white mt-4">
+                <i class="fas fa-arrow-left mr-2"></i> Back
+            </button>
+        </div>
+        
+        <!-- Handheld Selection Screen -->
+        <div id="handheld-screen" class="screen text-center">
+            <div class="mb-8">
+                <h1 class="text-5xl font-bold mb-4 text-yellow-400">RetroRandomiser</h1>
+                <p class="text-xl text-yellow-300 mb-2">The cure for gamer's block</p>
+            </div>
+            
+            <div class="bg-gray-800 rounded-lg p-6 mb-8 shadow-lg">
+                <h2 class="text-3xl font-bold mb-4 text-yellow-400">Choose a handheld</h2>
+                
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+                    <button data-handheld="Gameboy DMG" class="game-button bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        Gameboy DMG
+                    </button>
+                    <button data-handheld="Gameboy Color" class="game-button bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        Gameboy Color
+                    </button>
+                    <button data-handheld="FPGAGB" class="game-button bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        FPGAGB
+                    </button>
+                    <button data-handheld="Gameboy Pocket" class="game-button bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        Gameboy Pocket
+                    </button>
+                    <button data-handheld="Gameboy Light" class="game-button bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        Gameboy Light
+                    </button>
+                    <button data-handheld="Gameboy Advance" class="game-button bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        Gameboy Advance
+                    </button>
+                    <button data-handheld="Gameboy Advance SP" class="game-button bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        Gameboy Advance SP
+                    </button>
+                    <button data-handheld="Gameboy Micro" class="game-button bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        Gameboy Micro
+                    </button>
+                    <button data-handheld="DS Lite" class="game-button bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        DS Lite
+                    </button>
+                    <button data-handheld="DS XL" class="game-button bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        DS XL
+                    </button>
+                    <button data-handheld="NeoGeo Pocket" class="game-button bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        NeoGeo Pocket
+                    </button>
+                    <button data-handheld="GameGear" class="game-button bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        GameGear
+                    </button>
+                    <button data-handheld="PC Engine GT" class="game-button bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        PC Engine GT
+                    </button>
+                    <button data-handheld="PowKiddy" class="game-button bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        PowKiddy
+                    </button>
+                    <button data-handheld="Ambernic RK2020" class="game-button bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-2 rounded-lg text-sm md:text-base">
+                        Ambernic RK2020
+                    </button>
+                </div>
+                
+                <div class="randomiser-option bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-full inline-block cursor-pointer mb-4">
+                    <i class="fas fa-random mr-2"></i> Random Handheld
+                </div>
+            </div>
+            
+            <button id="back-to-system-handheld" class="text-gray-400 hover:text-white mt-4">
+                <i class="fas fa-arrow-left mr-2"></i> Back
+            </button>
+        </div>
+        
+        <!-- Randomiser Screen -->
+        <div id="randomiser-screen" class="screen text-center">
+            <div class="mb-8">
+                <h1 class="text-5xl font-bold mb-4 text-yellow-400">RetroRandomiser</h1>
+                <p class="text-xl text-yellow-300 mb-2">The cure for gamer's block</p>
+            </div>
+            
+            <div class="bg-gray-800 rounded-lg p-6 mb-8 shadow-lg">
+                <h2 class="text-2xl font-bold mb-4 text-yellow-400">Playing on: <span id="selected-platform" class="text-white">Arcade/MVS</span></h2>
+                
+                <div id="randomiser-container" class="mb-8">
+                    <!-- Moved the randomise button down by adding more space above it -->
+                    <div class="h-32 flex flex-col justify-end">
+                        <button id="randomise-btn" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-3 px-8 rounded-full text-xl transition-all duration-300 transform hover:scale-105 mb-6">
+                            <i class="fas fa-random mr-2"></i> Randomise
+                        </button>
+                    </div>
+                    
+                    <div id="randomiser-animation" class="hidden">
+                        <div class="flex justify-center items-center mb-4">
+                            <div class="spinner text-4xl text-yellow-400 mr-4">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <div class="slot-machine w-48 bg-gray-700 rounded-lg overflow-hidden">
+                                <div class="slot">
+                                    <div class="slot-item">Platform</div>
+                                    <div class="slot-item">Run & Gun</div>
+                                    <div class="slot-item">Beat-em up</div>
+                                    <div class="slot-item">Fighting</div>
+                                    <div class="slot-item">Shooter</div>
+                                    <div class="slot-item">Sports</div>
+                                    <div class="slot-item">Driving</div>
+                                    <div class="slot-item">Simulation</div>
+                                    <div class="slot-item">Puzzle</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="random-messages" class="text-lg text-yellow-300 h-8">
+                            <p class="random-message">Consulting the gaming gods...</p>
+                            <p class="random-message hidden">Checking the retro archives...</p>
+                            <p class="random-message hidden">Spinning the genre wheel...</p>
+                            <p class="random-message hidden">Analyzing your gaming history...</p>
+                            <p class="random-message hidden">Deciphering ancient game manuals...</p>
+                            <p class="random-message hidden">Blowing on cartridges for better results...</p>
+                        </div>
+                    </div>
+                    
+                    <div id="result-container" class="hidden mt-8">
+                        <div class="bg-gray-700 rounded-lg p-6 mb-6">
+                            <h3 class="text-2xl font-bold mb-2">Your random genre is:</h3>
+                            <p id="result-genre" class="text-4xl font-bold text-yellow-400 mb-4">Platform</p>
+                            <p id="result-message" class="text-lg">Time to jump and stomp on some enemies!</p>
+                        </div>
+                        
+                        <button id="choose-again-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-full text-lg">
+                            <i class="fas fa-redo mr-2"></i> Choose again
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="back-to-selection" class="text-gray-400 hover:text-white mt-4">
+                <i class="fas fa-arrow-left mr-2"></i> Back
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Game data
+        const genres = [
+            "Platform", 
+            "Run & Gun", 
+            "Beat-em up", 
+            "Fighting", 
+            "Shooter", 
+            "Sports", 
+            "Driving", 
+            "Simulation", 
+            "Puzzle"
+        ];
+        
+        const genreMessages = {
+            "Platform": "Time to jump and stomp on some enemies!",
+            "Run & Gun": "Run, shoot, repeat! Blast your way through waves of enemies.",
+            "Beat-em up": "Grab a friend and punch your way through hordes of bad guys!",
+            "Fighting": "Round 1... FIGHT! Show off your combo skills.",
+            "Shooter": "Lock and load! Precision and reflexes required.",
+            "Sports": "Get ready for some competitive action!",
+            "Driving": "Start your engines and race to the finish line!",
+            "Simulation": "Time for some strategic thinking and careful planning.",
+            "Puzzle": "Exercise your brain with some challenging puzzles!"
+        };
+        
+        const consoles = [
+            "NES", "Master System", "PC Engine", "Super Famicom", 
+            "MegaDrive", "Mega CD", "32X", "N64", "Saturn", 
+            "Gamecube", "Dreamcast", "PS1", "PS3", "Switch"
+        ];
+        
+        const handhelds = [
+            "Gameboy DMG", "Gameboy Color", "FPGAGB", "Gameboy Pocket", 
+            "Gameboy Light", "Gameboy Advance", "Gameboy Advance SP", 
+            "Gameboy Micro", "DS Lite", "DS XL", "NeoGeo Pocket", 
+            "GameGear", "PC Engine GT", "PowKiddy", "Ambernic RK2020"
+        ];
+        
+        // DOM elements
+        const screens = {
+            title: document.getElementById('title-screen'),
+            system: document.getElementById('system-screen'),
+            console: document.getElementById('console-screen'),
+            handheld: document.getElementById('handheld-screen'),
+            randomiser: document.getElementById('randomiser-screen')
+        };
+        
+        const buttons = {
+            start: document.getElementById('start-btn'),
+            backToTitle: document.getElementById('back-to-title'),
+            backToSystem: document.getElementById('back-to-system'),
+            backToSystemHandheld: document.getElementById('back-to-system-handheld'),
+            backToSelection: document.getElementById('back-to-selection'),
+            randomise: document.getElementById('randomise-btn'),
+            chooseAgain: document.getElementById('choose-again-btn')
+        };
+        
+        const randomiserElements = {
+            container: document.getElementById('randomiser-container'),
+            animation: document.getElementById('randomiser-animation'),
+            messages: document.getElementById('random-messages'),
+            result: document.getElementById('result-container'),
+            genre: document.getElementById('result-genre'),
+            message: document.getElementById('result-message'),
+            platform: document.getElementById('selected-platform')
+        };
+        
+        // State
+        let currentPlatform = "Arcade/MVS";
+        
+        // Navigation functions
+        function showScreen(screen) {
+            Object.values(screens).forEach(s => s.classList.remove('active'));
+            screen.classList.add('active');
+        }
+        
+        // Event listeners
+        buttons.start.addEventListener('click', () => showScreen(screens.system));
+        
+        buttons.backToTitle.addEventListener('click', () => showScreen(screens.title));
+        buttons.backToSystem.addEventListener('click', () => showScreen(screens.system));
+        buttons.backToSystemHandheld.addEventListener('click', () => showScreen(screens.system));
+        buttons.backToSelection.addEventListener('click', () => {
+            if (currentPlatform.includes("Arcade") || currentPlatform.includes("Console") || currentPlatform.includes("Handheld")) {
+                showScreen(screens.system);
+            } else if (consoles.includes(currentPlatform)) {
+                showScreen(screens.console);
+            } else if (handhelds.includes(currentPlatform)) {
+                showScreen(screens.handheld);
+            }
+        });
+        
+        // System selection
+        document.querySelectorAll('[data-system]').forEach(button => {
+            button.addEventListener('click', function() {
+                const system = this.getAttribute('data-system');
+                
+                if (system === 'arcade') {
+                    currentPlatform = "Arcade/MVS";
+                    showScreen(screens.randomiser);
+                    randomiserElements.platform.textContent = currentPlatform;
+                } else if (system === 'console') {
+                    showScreen(screens.console);
+                } else if (system === 'handheld') {
+                    showScreen(screens.handheld);
+                }
+            });
+        });
+        
+        // Random system selection
+        document.querySelectorAll('.randomiser-option').forEach(button => {
+            button.addEventListener('click', function() {
+                // Determine which screen we're on
+                if (screens.system.classList.contains('active')) {
+                    const systems = ["Arcade/MVS", "Console", "Handheld"];
+                    currentPlatform = systems[Math.floor(Math.random() * systems.length)];
+                    
+                    if (currentPlatform === "Console") {
+                        showScreen(screens.console);
+                    } else if (currentPlatform === "Handheld") {
+                        showScreen(screens.handheld);
+                    } else {
+                        showScreen(screens.randomiser);
+                        randomiserElements.platform.textContent = currentPlatform;
+                    }
+                } else if (screens.console.classList.contains('active')) {
+                    currentPlatform = consoles[Math.floor(Math.random() * consoles.length)];
+                    showScreen(screens.randomiser);
+                    randomiserElements.platform.textContent = currentPlatform;
+                } else if (screens.handheld.classList.contains('active')) {
+                    currentPlatform = handhelds[Math.floor(Math.random() * handhelds.length)];
+                    showScreen(screens.randomiser);
+                    randomiserElements.platform.textContent = currentPlatform;
+                }
+            });
+        });
+        
+        // Console selection
+        document.querySelectorAll('[data-console]').forEach(button => {
+            button.addEventListener('click', function() {
+                currentPlatform = this.getAttribute('data-console');
+                showScreen(screens.randomiser);
+                randomiserElements.platform.textContent = currentPlatform;
+            });
+        });
+        
+        // Handheld selection
+        document.querySelectorAll('[data-handheld]').forEach(button => {
+            button.addEventListener('click', function() {
+                currentPlatform = this.getAttribute('data-handheld');
+                showScreen(screens.randomiser);
+                randomiserElements.platform.textContent = currentPlatform;
+            });
+        });
+        
+        // Randomiser functionality
+        buttons.randomise.addEventListener('click', startRandomiser);
+        buttons.chooseAgain.addEventListener('click', startRandomiser);
+        
+        function startRandomiser() {
+            // Show animation, hide button and result
+            randomiserElements.container.querySelector('button').classList.add('hidden');
+            randomiserElements.animation.classList.remove('hidden');
+            randomiserElements.result.classList.add('hidden');
+            
+            // Cycle through random messages
+            const messages = randomiserElements.messages.querySelectorAll('.random-message');
+            let currentMessage = 0;
+            
+            messages[currentMessage].classList.add('active');
+            
+            const messageInterval = setInterval(() => {
+                messages[currentMessage].classList.remove('active');
+                currentMessage = (currentMessage + 1) % messages.length;
+                messages[currentMessage].classList.add('active');
+            }, 1500);
+            
+            // After 10 seconds, show result
+            setTimeout(() => {
+                clearInterval(messageInterval);
+                
+                // Select random genre
+                const randomGenre = genres[Math.floor(Math.random() * genres.length)];
+                randomiserElements.genre.textContent = randomGenre;
+                randomiserElements.message.textContent = genreMessages[randomGenre];
+                
+                // Show result
+                randomiserElements.animation.classList.add('hidden');
+                randomiserElements.result.classList.remove('hidden');
+                randomiserElements.container.querySelector('button').classList.remove('hidden');
+            }, 10000);
+        }
+    </script>
+</body>
+</html>
