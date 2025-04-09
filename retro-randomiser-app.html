@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RetroRandomiser</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #ff6b6b;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            color: #f8f9fa;
+        }
+        
+        .btn {
+            background-color: #4361ee;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 10px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:hover {
+            background-color: #3a56d4;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-large {
+            padding: 15px 30px;
+            font-size: 1.4rem;
+        }
+        
+        .screen {
+            display: none;
+        }
+        
+        .active {
+            display: block;
+        }
+        
+        .wheel-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 30px;
+        }
+        
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                #ff6b6b 0% 11.11%,
+                #4cc9f0 11.11% 22.22%,
+                #f72585 22.22% 33.33%,
+                #4361ee 33.33% 44.44%,
+                #7209b7 44.44% 55.55%,
+                #3a0ca3 55.55% 66.66%,
+                #4cc9f0 66.66% 77.77%,
+                #f72585 77.77% 88.88%,
+                #ff6b6b 88.88% 100%
+            );
+            position: relative;
+            transform-origin: center;
+            transition: transform 10s cubic-bezier(0.17, 0.67, 0.14, 0.99);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        .wheel::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            right: -20px;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-top: 20px solid transparent;
+            border-bottom: 20px solid transparent;
+            border-left: 25px solid white;
+            z-index: 10;
+        }
+        
+        .message-display {
+            font-size: 1.5rem;
+            margin: 20px 0;
+            min-height: 60px;
+            color: #4cc9f0;
+        }
+        
+        .result-display {
+            font-size: 2rem;
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #222222;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+        
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            p {
+                font-size: 1rem;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+            
+            .btn-large {
+                padding: 12px 24px;
+                font-size: 1.2rem;
+            }
+            
+            .wheel-container {
+                width: 250px;
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Title Screen -->
+        <div id="title-screen" class="screen active">
+            <h1>Welcome to the RetroRandomiser!</h1>
+            <p>Can't think what to play? You've come to the right place, choose your system and we'll choose a genre of game for you to play!</p>
+            <button id="start-btn" class="btn btn-large">Let's Go!</button>
+        </div>
+        
+        <!-- System Selection Screen -->
+        <div id="system-screen" class="screen">
+            <h1>Choose a system to play on</h1>
+            <p>Tap a button below for the system you want to play.</p>
+            <div class="button-container">
+                <button class="btn system-btn" data-system="Arcade">Arcade</button>
+                <button class="btn system-btn" data-system="Console">Console</button>
+                <button class="btn system-btn" data-system="Handheld">Handheld</button>
+            </div>
+        </div>
+        
+        <!-- Randomiser Screen -->
+        <div id="randomiser-screen" class="screen">
+            <h1>Randomiser</h1>
+            <p id="selected-system">System: </p>
+            
+            <div class="wheel-container">
+                <div id="wheel" class="wheel"></div>
+            </div>
+            
+            <div id="message-display" class="message-display"></div>
+            <div id="result-display" class="result-display"></div>
+            
+            <button id="randomise-btn" class="btn btn-large">Randomise</button>
+            <button id="choose-again-btn" class="btn" style="display: none;">Choose Again</button>
+            <button id="back-btn" class="btn">Back to Systems</button>
+        </div>
+    </div>
+    
+    <script>
+        // App elements
+        const titleScreen = document.getElementById('title-screen');
+        const systemScreen = document.getElementById('system-screen');
+        const randomiserScreen = document.getElementById('randomiser-screen');
+        const startBtn = document.getElementById('start-btn');
+        const systemBtns = document.querySelectorAll('.system-btn');
+        const selectedSystemText = document.getElementById('selected-system');
+        const randomiseBtn = document.getElementById('randomise-btn');
+        const chooseAgainBtn = document.getElementById('choose-again-btn');
+        const backBtn = document.getElementById('back-btn');
+        const messageDisplay = document.getElementById('message-display');
+        const resultDisplay = document.getElementById('result-display');
+        const wheel = document.getElementById('wheel');
+        
+        // Game data
+        const genres = [
+            "Platform",
+            "Run & Gun",
+            "Beat-em up",
+            "Fighting",
+            "Shooter",
+            "Sports",
+            "Driving",
+            "Simulation",
+            "Puzzle"
+        ];
+        
+        const funMessages = [
+            "Spinning the wheels of nostalgia...",
+            "Dusting off those old cartridges...",
+            "Charging up the controller...",
+            "Inserting coin...",
+            "Blowing on the cartridge...",
+            "Loading, please wait...",
+            "Consulting the gaming gods...",
+            "Searching in the retro archives...",
+            "Calculating optimal fun factor...",
+            "Checking high scores...",
+            "Finding the perfect match...",
+            "Ready Player One!",
+            "Game on!"
+        ];
+        
+        let selectedSystem = "";
+        let isRandomising = false;
+        
+        // Event Listeners
+        startBtn.addEventListener('click', () => {
+            titleScreen.classList.remove('active');
+            systemScreen.classList.add('active');
+        });
+        
+        systemBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                selectedSystem = e.target.getAttribute('data-system');
+                selectedSystemText.textContent = `System: ${selectedSystem}`;
+                systemScreen.classList.remove('active');
+                randomiserScreen.classList.add('active');
+            });
+        });
+        
+        randomiseBtn.addEventListener('click', startRandomiser);
+        chooseAgainBtn.addEventListener('click', startRandomiser);
+        
+        backBtn.addEventListener('click', () => {
+            if(isRandomising) return;
+            randomiserScreen.classList.remove('active');
+            systemScreen.classList.add('active');
+            resetRandomiser();
+        });
+        
+        // Functions
+        function startRandomiser() {
+            if(isRandomising) return;
+            
+            isRandomising = true;
+            randomiseBtn.style.display = 'none';
+            chooseAgainBtn.style.display = 'none';
+            resultDisplay.style.display = 'none';
+            
+            // Start wheel spin animation
+            const spinDegrees = 1800 + Math.floor(Math.random() * 1080);
+            wheel.style.transform = `rotate(${spinDegrees}deg)`;
+            
+            // Show fun messages
+            let messageIndex = 0;
+            messageDisplay.textContent = funMessages[messageIndex];
+            
+            const messageInterval = setInterval(() => {
+                messageIndex = (messageIndex + 1) % funMessages.length;
+                messageDisplay.textContent = funMessages[messageIndex];
+            }, 1500);
+            
+            // Generate random genre after delay
+            setTimeout(() => {
+                clearInterval(messageInterval);
+                
+                const randomIndex = Math.floor(Math.random() * genres.length);
+                const selectedGenre = genres[randomIndex];
+                
+                resultDisplay.textContent = selectedGenre;
+                resultDisplay.style.display = 'block';
+                chooseAgainBtn.style.display = 'inline-block';
+                
+                messageDisplay.textContent = `We think you should play a ${selectedGenre} game on your ${selectedSystem}!`;
+                
+                isRandomising = false;
+            }, 10000);
+        }
+        
+        function resetRandomiser() {
+            wheel.style.transform = 'rotate(0deg)';
+            messageDisplay.textContent = '';
+            resultDisplay.textContent = '';
+            resultDisplay.style.display = 'none';
+            randomiseBtn.style.display = 'inline-block';
+            chooseAgainBtn.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
