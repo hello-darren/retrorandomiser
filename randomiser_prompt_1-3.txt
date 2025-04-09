@@ -1,6 +1,6 @@
-// v1.2 with system and handheld sub systems to select or be chosen at random.
+// v1.3 with random system and console option
 
-Prompt 1.2:
+Prompt 1.3:
 
 i want to build an app to help me choose a genre of video game to play.
 
