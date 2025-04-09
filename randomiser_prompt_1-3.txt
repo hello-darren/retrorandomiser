@@ -85,10 +85,7 @@ When a console button is clicked or the user clicks OK for the random choice, th
 
 The randomiser screen.
 
-Heading: Randomiser
-
-Smaller text: Tap a button below for the system you want to play. 
-
+Heading: RetroRandomiser
 
 Present the user with a button with the title: 'Randomise', when clicked the app should choose a genre at random and display it back to the user via the randomiser UI element. 
 
